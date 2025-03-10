@@ -59,6 +59,9 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   late bool _obscureText;
   
+  // Define a primary color to use instead of AppConstants.primaryColor
+  final Color primaryColor = Colors.blue;
+  
   @override
   void initState() {
     super.initState();
@@ -108,7 +111,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             prefixIcon: widget.prefixIcon != null
                 ? Icon(
                     widget.prefixIcon,
-                    color: AppConstants.primaryColor,
+                    color: primaryColor, // Using local primaryColor instead of AppConstants
                     size: 20,
                   )
                 : null,
@@ -131,7 +134,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppConstants.primaryColor,
+                color: primaryColor, // Using local primaryColor instead of AppConstants
                 width: 1.5,
               ),
             ),
@@ -179,7 +182,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       return IconButton(
         icon: Icon(
           widget.suffixIcon,
-          color: AppConstants.primaryColor,
+          color: primaryColor, // Using local primaryColor instead of AppConstants
           size: 20,
         ),
         onPressed: widget.onSuffixIconTap,
