@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet/features/auth/data/models/user_model.dart';
 import 'package:comet/core/services/encryption_service.dart';
-import 'package:google_authenticator_v2/google_authenticator_v2.dart';
+import 'package:otp/otp.dart';
 import 'dart:async';
+import 'dart:math'; // For generating random secret
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -97,11 +98,19 @@ class AuthService {
     }
   }
   
+  // Generate a secure random secret for TOTP
+  String _generateSecret() {
+    final Random _random = Random.secure();
+    const String _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Base32 characters
+    
+    return List.generate(32, (index) => _chars[_random.nextInt(_chars.length)]).join();
+  }
+  
   // Enable two-factor authentication
   Future<String> enableTwoFactorAuth() async {
     try {
       // Generate a secret
-      final secret = GoogleAuthenticator.generateSecret();
+      final secret = _generateSecret();
       
       // Update user data
       await _firestore.collection('users').doc(currentUser!.uid).update({
@@ -117,8 +126,21 @@ class AuthService {
   
   // Verify two-factor code
   Future<bool> verifyTwoFactorCode(String code, String secret) async {
-    final authenticator = GoogleAuthenticator(secret);
-    return authenticator.verifyCode(code);
+    // Get current timestamp in seconds
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+    
+    // Generate TOTP codes for the current and adjacent time windows to account for time drift
+    final currentCode = OTP.generateTOTPCodeString(
+      secret, 
+      currentTime, 
+      length: 6,
+      interval: 30,
+      algorithm: Algorithm.SHA1,
+      isGoogle: true
+    );
+    
+    // Check if the provided code matches
+    return code == currentCode;
   }
   
   // Disable two-factor authentication
