@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "312703723408",
+    "project_id": "comet-218a7",
+    "storage_bucket": "comet-218a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312703723408:android:46d89139e349ee4cbe7515",
+        "android_client_info": {
+          "package_name": "com.example.comet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "312703723408-quap95jgsb8rcjqudoshkdteeutt12s0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.comet",
+            "certificate_hash": "cfa6e3ecbbdd37c9d16fae14b9bf530a558dcadc"
+          }
+        },
+        {
+          "client_id": "312703723408-o41giqd458j8p282p2miq4vjqc6jim71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKSppYq8qCElO8dhilm1vfQWCb9s3L2dI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "312703723408-o41giqd458j8p282p2miq4vjqc6jim71.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "312703723408-fsdr9tqda3p7q7i6n2598b0pti10cdh1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.comet"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
