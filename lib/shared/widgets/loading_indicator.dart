@@ -9,7 +9,7 @@ class LoadingIndicator extends StatelessWidget {
   const LoadingIndicator({
     Key? key,
     this.size = 36.0,
-    this.color = AppConstants.primaryColor,
+    this.color = Colors.blue, // Changed from AppConstants.primaryColor to a direct color
     this.message,
   }) : super(key: key);
 

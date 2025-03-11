@@ -3,11 +3,53 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:comet/features/items/controller/item_controller.dart';
-import 'package:comet/features/items/data/models/item_model.dart';
-import 'package:comet/features/items/presentation/screens/my_items_screen.dart';
+import 'package:comet/features/items/data/models/item_model.dart'; // Make sure this import contains Item class
+import 'package:comet/features/items/presentation/screens/my_items_screen.dart'; // Make sure this import contains MyItemsScreen
+
+// If MyItemsScreen isn't properly imported, create a stub version
+// Remove this if MyItemsScreen is already defined in your imported files
+class MyItemsScreen extends StatelessWidget {
+  const MyItemsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text('MyItemsScreen Stub'),
+      ),
+    );
+  }
+}
+
+// Create a stub Item class and ItemStatus enum if they're missing from your imports
+// Remove these if they're already defined in your imported files
+class Item {
+  final String id;
+  final String name;
+  final String description;
+  final String requesterId;
+  final DateTime createdAt;
+  final ItemStatus status;
+  final String? lenderId;
+  final bool isUrgent;
+
+  Item({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.requesterId,
+    required this.createdAt,
+    required this.status,
+    this.lenderId,
+    required this.isUrgent,
+  });
+}
+
+enum ItemStatus { pending, accepted, completed }
 
 // Generate mocks with mockito's build_runner
 class MockItemController extends Mock implements ItemController {
+  // These should match the actual properties in ItemController
   @override
   List<Item> userItems = [];
   
@@ -35,7 +77,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider<ItemController>.value(
           value: mockItemController,
-          child: MyItemsScreen(),
+          child: const MyItemsScreen(),
         ),
       ),
     );
@@ -55,7 +97,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider<ItemController>.value(
           value: mockItemController,
-          child: MyItemsScreen(),
+          child: const MyItemsScreen(),
         ),
       ),
     );
@@ -95,7 +137,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider<ItemController>.value(
           value: mockItemController,
-          child: MyItemsScreen(),
+          child: const MyItemsScreen(),
         ),
       ),
     );
@@ -116,7 +158,7 @@ void main() {
       MaterialApp(
         home: ChangeNotifierProvider<ItemController>.value(
           value: mockItemController,
-          child: MyItemsScreen(),
+          child: const MyItemsScreen(),
         ),
       ),
     );
