@@ -38,12 +38,12 @@ class CustomButton extends StatelessWidget {
     switch (type) {
       case ButtonType.primary:
         return _buildElevatedButton(
-          backgroundColor: AppConstants.colors.primary,
+          backgroundColor: AppConstants.primaryColor,
           foregroundColor: Colors.white,
         );
       case ButtonType.secondary:
         return _buildElevatedButton(
-          backgroundColor: AppConstants.colors.secondary,
+          backgroundColor: AppConstants.secondaryColor,
           foregroundColor: Colors.white,
         );
       case ButtonType.outline:
@@ -76,14 +76,14 @@ class CustomButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: disabled || isLoading ? null : onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppConstants.colors.primary,
+        foregroundColor: AppConstants.primaryColor,
         padding: _getPadding(),
-        side: BorderSide(color: AppConstants.colors.primary),
+        side: BorderSide(color: AppConstants.primaryColor),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      child: _buildButtonContent(AppConstants.colors.primary),
+      child: _buildButtonContent(AppConstants.primaryColor),
     );
   }
 
@@ -91,13 +91,13 @@ class CustomButton extends StatelessWidget {
     return TextButton(
       onPressed: disabled || isLoading ? null : onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppConstants.colors.primary,
+        foregroundColor: AppConstants.primaryColor,
         padding: _getPadding(),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      child: _buildButtonContent(AppConstants.colors.primary),
+      child: _buildButtonContent(AppConstants.primaryColor),
     );
   }
 

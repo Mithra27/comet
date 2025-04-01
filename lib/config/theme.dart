@@ -1,4 +1,18 @@
+// lib/config/theme.dart
 import 'package:flutter/material.dart';
+
+// Add AppColors class needed by profile widgets
+class AppColors {
+  static const Color primary = Color(0xFF8BBEE8); // Using the primary color from AppTheme
+  static const Color secondary = Color(0xFFA7D7C5); // Using the secondary color from AppTheme
+  static const Color accent = Color(0xFFF9C8C8); // Using the accent color from AppTheme
+  static const Color background = Color(0xFFF8F9FA);
+  static const Color surface = Colors.white;
+  static const Color error = Color(0xFFF8AFA6);
+  static const Color success = Color(0xFF93D7AF);
+  static const Color warning = Color(0xFFFADAA3);
+  static const Color info = Color(0xFFA3BFFA);
+}
 
 class AppTheme {
   // Primary colors

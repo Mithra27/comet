@@ -1,106 +1,144 @@
+// Replace the existing ItemModel class in lib/features/items/data/models/item_model.dart
+// with this consolidated version.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// --- Enums defined above this line ---
+enum ItemStatus { requested, offered, accepted, completed, cancelled, unknown }
+enum DurationUnit { hours, days, weeks }
+// --- ---
 
 class ItemModel {
   final String id;
-  final String name;
+  final String title; // Changed from name
   final String description;
-  final String ownerId;
-  final String ownerName;
+  final String requesterId; // Added: Who is requesting the item
+  final String ownerName; // Kept: Name of the user requesting (redundant?) -> Maybe rename to requesterName
   final String category;
-  final List<String> images;
-  final double? rentAmount;
-  final int? rentDuration; // in days
-  final bool isAvailable;
+  final List<String> imageUrls; // Changed from images
+  final ItemStatus status; // Added
   final DateTime createdAt;
-  final String? currentBorrowerId;
-  final DateTime? borrowStartDate;
-  final DateTime? borrowEndDate;
-  
+  final DateTime? startDate; // Added: When the item is needed from
+  final DateTime? endDate; // Added: When the item is needed until
+  final int? duration; // Added: Optional duration
+  final DurationUnit? durationUnit; // Added: Optional duration unit
+  final bool isUrgent; // Added
+  final String? lenderId; // Added: Who offered/accepted to lend
+  final String? lenderName; // Added: Name of the lender
+
+  // Removed: ownerId (use requesterId), rentAmount, rentDuration, isAvailable,
+  // currentBorrowerId, borrowStartDate, borrowEndDate (use startDate/endDate/lenderId/status instead)
+  // Kept ownerName but consider renaming to requesterName
+
   ItemModel({
     required this.id,
-    required this.name,
+    required this.title,
     required this.description,
-    required this.ownerId,
-    required this.ownerName,
+    required this.requesterId, // Changed from ownerId
+    required this.ownerName, // Consider renaming this field
     required this.category,
-    required this.images,
-    this.rentAmount,
-    this.rentDuration,
-    required this.isAvailable,
+    required this.imageUrls, // Changed from images
+    required this.status, // Added
     required this.createdAt,
-    this.currentBorrowerId,
-    this.borrowStartDate,
-    this.borrowEndDate,
+    this.startDate, // Added
+    this.endDate, // Added
+    this.duration, // Added
+    this.durationUnit, // Added
+    this.isUrgent = false, // Added with default
+    this.lenderId, // Added
+    this.lenderName, // Added
   });
-  
-  // Convert to Map
+
+  // Convert ItemModel to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
+      'title': title,
       'description': description,
-      'ownerId': ownerId,
-      'ownerName': ownerName,
+      'requesterId': requesterId,
+      'ownerName': ownerName, // Remember to handle potential rename
       'category': category,
-      'images': images,
-      'rentAmount': rentAmount,
-      'rentDuration': rentDuration,
-      'isAvailable': isAvailable,
+      'imageUrls': imageUrls,
+      'status': status.name, // Store enum as string
       'createdAt': Timestamp.fromDate(createdAt),
-      'currentBorrowerId': currentBorrowerId,
-      'borrowStartDate': borrowStartDate != null ? Timestamp.fromDate(borrowStartDate!) : null,
-      'borrowEndDate': borrowEndDate != null ? Timestamp.fromDate(borrowEndDate!) : null,
+      'startDate': startDate != null ? Timestamp.fromDate(startDate!) : null,
+      'endDate': endDate != null ? Timestamp.fromDate(endDate!) : null,
+      'duration': duration,
+      'durationUnit': durationUnit?.name, // Store enum as string or null
+      'isUrgent': isUrgent,
+      'lenderId': lenderId,
+      'lenderName': lenderName,
     };
   }
-  
-  // Create from Map
+
+  // Create ItemModel from Firestore Map
   factory ItemModel.fromMap(Map<String, dynamic> map) {
     return ItemModel(
       id: map['id'] ?? '',
-      name: map['name'] ?? '',
+      title: map['title'] ?? map['name'] ?? '', // Handle old 'name' field if needed
       description: map['description'] ?? '',
-      ownerId: map['ownerId'] ?? '',
-      ownerName: map['ownerName'] ?? '',
+      requesterId: map['requesterId'] ?? map['ownerId'] ?? '', // Handle old 'ownerId'
+      ownerName: map['ownerName'] ?? '', // Handle potential rename
       category: map['category'] ?? '',
-      images: List<String>.from(map['images'] ?? []),
-      rentAmount: map['rentAmount']?.toDouble(),
-      rentDuration: map['rentDuration'],
-      isAvailable: map['isAvailable'] ?? true,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      currentBorrowerId: map['currentBorrowerId'],
-      borrowStartDate: map['borrowStartDate'] != null ? (map['borrowStartDate'] as Timestamp).toDate() : null,
-      borrowEndDate: map['borrowEndDate'] != null ? (map['borrowEndDate'] as Timestamp).toDate() : null,
+      imageUrls: List<String>.from(map['imageUrls'] ?? map['images'] ?? []), // Handle old 'images'
+      // Deserialize status safely
+      status: ItemStatus.values.firstWhere(
+            (e) => e.name == map['status'],
+            orElse: () => ItemStatus.unknown, // Default if status string is invalid/missing
+          ),
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(), // Handle potential null
+      startDate: (map['startDate'] as Timestamp?)?.toDate(), // Handle potential null
+      endDate: (map['endDate'] as Timestamp?)?.toDate(), // Handle potential null
+      duration: map['duration'] as int?, // Handle potential null type mismatch
+      // Deserialize durationUnit safely
+      durationUnit: map['durationUnit'] != null
+          ? DurationUnit.values.firstWhere(
+              (e) => e.name == map['durationUnit'],
+              orElse: () => null, // Use null if string is invalid
+            )
+          : null,
+      isUrgent: map['isUrgent'] ?? false,
+      lenderId: map['lenderId'] as String?, // Handle potential null
+      lenderName: map['lenderName'] as String?, // Handle potential null
     );
   }
-  
-  // Create copy with updated fields
-  ItemModel copyWith({
-    String? name,
+
+  // Create copy with updated fields (ensure all fields are included)
+   ItemModel copyWith({
+    String? id,
+    String? title,
     String? description,
+    String? requesterId,
+    String? ownerName, // Handle potential rename
     String? category,
-    List<String>? images,
-    double? rentAmount,
-    int? rentDuration,
-    bool? isAvailable,
-    String? currentBorrowerId,
-    DateTime? borrowStartDate,
-    DateTime? borrowEndDate,
+    List<String>? imageUrls,
+    ItemStatus? status,
+    DateTime? createdAt,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? duration,
+    DurationUnit? durationUnit,
+    bool? isUrgent,
+    String? lenderId,
+    String? lenderName,
   }) {
     return ItemModel(
-      id: id,
-      name: name ?? this.name,
+      id: id ?? this.id,
+      title: title ?? this.title,
       description: description ?? this.description,
-      ownerId: ownerId,
-      ownerName: ownerName,
+      requesterId: requesterId ?? this.requesterId,
+      ownerName: ownerName ?? this.ownerName,
       category: category ?? this.category,
-      images: images ?? this.images,
-      rentAmount: rentAmount ?? this.rentAmount,
-      rentDuration: rentDuration ?? this.rentDuration,
-      isAvailable: isAvailable ?? this.isAvailable,
-      createdAt: createdAt,
-      currentBorrowerId: currentBorrowerId ?? this.currentBorrowerId,
-      borrowStartDate: borrowStartDate ?? this.borrowStartDate,
-      borrowEndDate: borrowEndDate ?? this.borrowEndDate,
+      imageUrls: imageUrls ?? this.imageUrls,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      duration: duration ?? this.duration,
+      durationUnit: durationUnit ?? this.durationUnit,
+      isUrgent: isUrgent ?? this.isUrgent,
+      lenderId: lenderId ?? this.lenderId,
+      lenderName: lenderName ?? this.lenderName,
     );
   }
 }

@@ -14,6 +14,17 @@ class ProfileModel {
   final Timestamp? updatedAt;
   final int trustScore;
   final List<String> interests;
+  
+  // Added fields needed by ProfileInfoCard
+  final String? photoUrl;
+  final String fullName;
+  final String apartmentNumber;
+  final double rating;
+  final int reviewCount;
+  final String? bio;
+  final int itemsShared;
+  final int itemsBorrowed;
+  final int activeRequests;
 
   ProfileModel({
     required this.id,
@@ -28,7 +39,20 @@ class ProfileModel {
     this.updatedAt,
     this.trustScore = 0,
     this.interests = const [],
-  });
+    // Initialize the new fields
+    this.photoUrl,
+    String? fullName,
+    String? apartmentNumber,
+    this.rating = 0.0,
+    this.reviewCount = 0,
+    this.bio,
+    this.itemsShared = 0,
+    this.itemsBorrowed = 0,
+    this.activeRequests = 0,
+  }) : 
+    // Set fullName and apartmentNumber based on existing fields if not provided
+    this.fullName = fullName ?? name,
+    this.apartmentNumber = apartmentNumber ?? apartment;
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
@@ -44,6 +68,14 @@ class ProfileModel {
       updatedAt: json['updatedAt'],
       trustScore: json['trustScore'] ?? 0,
       interests: List<String>.from(json['interests'] ?? []),
+      // Additional fields
+      photoUrl: json['photoUrl'] ?? json['imageUrl'],
+      bio: json['bio'],
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      reviewCount: json['reviewCount'] ?? 0,
+      itemsShared: json['itemsShared'] ?? 0,
+      itemsBorrowed: json['itemsBorrowed'] ?? 0,
+      activeRequests: json['activeRequests'] ?? 0,
     );
   }
 
@@ -61,6 +93,14 @@ class ProfileModel {
       'updatedAt': updatedAt ?? Timestamp.now(),
       'trustScore': trustScore,
       'interests': interests,
+      // Additional fields
+      'photoUrl': photoUrl,
+      'bio': bio,
+      'rating': rating,
+      'reviewCount': reviewCount,
+      'itemsShared': itemsShared,
+      'itemsBorrowed': itemsBorrowed,
+      'activeRequests': activeRequests,
     };
   }
 
@@ -77,6 +117,16 @@ class ProfileModel {
     Timestamp? updatedAt,
     int? trustScore,
     List<String>? interests,
+    // Additional fields
+    String? photoUrl,
+    String? fullName,
+    String? apartmentNumber,
+    double? rating,
+    int? reviewCount,
+    String? bio,
+    int? itemsShared,
+    int? itemsBorrowed,
+    int? activeRequests,
   }) {
     return ProfileModel(
       id: id ?? this.id,
@@ -91,6 +141,16 @@ class ProfileModel {
       updatedAt: updatedAt ?? this.updatedAt,
       trustScore: trustScore ?? this.trustScore,
       interests: interests ?? this.interests,
+      // Additional fields
+      photoUrl: photoUrl ?? this.photoUrl,
+      fullName: fullName ?? this.fullName,
+      apartmentNumber: apartmentNumber ?? this.apartmentNumber,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      bio: bio ?? this.bio,
+      itemsShared: itemsShared ?? this.itemsShared,
+      itemsBorrowed: itemsBorrowed ?? this.itemsBorrowed,
+      activeRequests: activeRequests ?? this.activeRequests,
     );
   }
 }

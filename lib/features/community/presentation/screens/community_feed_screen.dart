@@ -1,179 +1,166 @@
+// lib/features/community/presentation/widgets/community_widgets.dart
+import 'package:comet/core/constants/app_constants.dart';
+import 'package:comet/features/community/data/models/community_model.dart'; // Import the model
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../controller/community_controller.dart';
-import '../data/models/community_model.dart';
-import '../widgets/community_widgets.dart';
-import '../../../../shared/widgets/loading_indicator.dart';
-import 'join_community_screen.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../items/presentation/screens/request_item_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // For network images
+import 'package:comet/core/utils/helpers.dart'; // For placeholder image
 
-class CommunityFeedScreen extends StatefulWidget {
-  const CommunityFeedScreen({Key? key}) : super(key: key);
+// --- FIX: Added EmptyCommunityState Widget Definition ---
+class EmptyCommunityState extends StatelessWidget {
+  final String message;
+  final VoidCallback? onAction;
+  final String? actionLabel;
+  final IconData icon;
 
-  @override
-  _CommunityFeedScreenState createState() => _CommunityFeedScreenState();
-}
-
-class _CommunityFeedScreenState extends State<CommunityFeedScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    
-    // Fetch initial data
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Provider.of<CommunityController>(context, listen: false);
-      controller.fetchUserCommunities();
-      controller.fetchAllCommunities();
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  const EmptyCommunityState({
+    Key? key,
+    required this.message,
+    this.onAction,
+    this.actionLabel,
+    this.icon = Icons.info_outline, // Default icon
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Communities'),
-        backgroundColor: AppConstants.primaryColor,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          tabs: [
-            Tab(text: 'My Communities'),
-            Tab(text: 'Discover'),
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 60, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+            ),
+            if (onAction != null && actionLabel != null) ...[
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: onAction,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                ),
+                child: Text(actionLabel!),
+              ),
+            ],
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement search functionality
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Search functionality coming soon!')),
-              );
-            },
-          ),
-        ],
       ),
-      body: Consumer<CommunityController>(
-        builder: (context, controller, child) {
-          if (controller.isLoading) {
-            return Center(child: LoadingIndicator());
-          }
-          
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              // My Communities Tab
-              _buildMyCommunities(controller),
-              
-              // Discover Tab
-              _buildDiscoverCommunities(controller),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RequestItemScreen()),
-          );
-        },
-        backgroundColor: AppConstants.primaryColor,
-        child: Icon(Icons.add),
-        tooltip: 'Request an item',
-      ),
-    );
-  }
-
-  Widget _buildMyCommunities(CommunityController controller) {
-    if (controller.userCommunities.isEmpty) {
-      return EmptyCommunityState(
-        message: 'You haven\'t joined any communities yet. Discover and join communities to start sharing!',
-        onAction: () {
-          _tabController.animateTo(1); // Switch to discover tab
-        },
-        actionLabel: 'Find Communities',
-      );
-    }
-    
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 8, bottom: 80),
-      itemCount: controller.userCommunities.length,
-      itemBuilder: (context, index) {
-        final community = controller.userCommunities[index];
-        return CommunityCard(
-          community: community,
-          isMember: true,
-          onTap: () {
-            controller.selectCommunity(community);
-            // TODO: Navigate to community detail screen
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildDiscoverCommunities(CommunityController controller) {
-    if (controller.communities.isEmpty) {
-      return EmptyCommunityState(
-        message: 'No communities available at the moment. Check back later or create your own community!',
-        onAction: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => JoinCommunityScreen()),
-          );
-        },
-        actionLabel: 'Join Community',
-      );
-    }
-    
-    // Filter out communities the user is already a member of
-    final List<Community> communitiesToJoin = controller.communities
-        .where((c) => !controller.userCommunities.any((uc) => uc.id == c.id))
-        .toList();
-    
-    if (communitiesToJoin.isEmpty) {
-      return EmptyCommunityState(
-        message: 'You\'ve joined all available communities!',
-      );
-    }
-    
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 8, bottom: 80),
-      itemCount: communitiesToJoin.length,
-      itemBuilder: (context, index) {
-        final community = communitiesToJoin[index];
-        return CommunityCard(
-          community: community,
-          isMember: false,
-          onTap: () {
-            controller.selectCommunity(community);
-            // TODO: Navigate to community detail screen
-          },
-          onJoin: () async {
-            final success = await controller.joinCommunity(community.id);
-            if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Successfully joined ${community.name}!')),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to join community. Please try again.')),
-              );
-            }
-          },
-        );
-      },
     );
   }
 }
+
+
+// --- Basic CommunityCard Widget (Placeholder) ---
+class CommunityCard extends StatelessWidget {
+  final CommunityModel community; // Use the fixed model
+  final bool isMember;
+  final VoidCallback onTap;
+  final VoidCallback? onJoin; // Make optional as it's only for discover
+
+  const CommunityCard({
+    Key? key,
+    required this.community,
+    required this.isMember,
+    required this.onTap,
+    this.onJoin,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // TODO: Replace with actual community image logic if available
+    final placeholderImage = Helpers.getPlaceholderImageUrl(seed: community.id.hashCode);
+
+    return Card(
+      // Uses CardTheme from AppTheme
+      clipBehavior: Clip.antiAlias, // Ensures image corners are rounded with card
+      child: InkWell( // Make the whole card tappable
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Community Image Placeholder
+              ClipRRect(
+                 borderRadius: BorderRadius.circular(8.0),
+                 child: CachedNetworkImage(
+                   imageUrl: placeholderImage, // Use placeholder
+                   width: 60,
+                   height: 60,
+                   fit: BoxFit.cover,
+                   placeholder: (context, url) => Container(
+                     width: 60,
+                     height: 60,
+                     color: Colors.grey[300],
+                     child: Icon(Icons.group, color: Colors.grey[500]),
+                   ),
+                   errorWidget: (context, url, error) => Container(
+                     width: 60,
+                     height: 60,
+                     color: Colors.grey[300],
+                     child: Icon(Icons.broken_image, color: Colors.grey[500]),
+                   ),
+                 ),
+               ),
+              const SizedBox(width: 12),
+              // Community Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      community.name,
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      community.description,
+                      style: textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                     const SizedBox(height: 4),
+                    Text(
+                      '${community.memberCount} Member${community.memberCount == 1 ? '' : 's'}', // Handle plural
+                       style: textTheme.labelSmall?.copyWith(color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Action Button (Join)
+              if (!isMember && onJoin != null)
+                TextButton(
+                  onPressed: onJoin,
+                  style: TextButton.styleFrom(
+                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                     backgroundColor: colorScheme.primaryContainer.withOpacity(0.2),
+                     foregroundColor: colorScheme.primary,
+                     textStyle: textTheme.labelSmall,
+                     tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce padding
+                  ),
+                  child: const Text('Join'),
+                ),
+              if (isMember) // Placeholder for member indicator
+                 Icon(Icons.check_circle, color: Colors.green.shade300, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Add other community-related widgets here as needed

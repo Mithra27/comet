@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data'; // Added import for Uint8List
 import 'package:crypto/crypto.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:encrypt/encrypt.dart' as encrypt_pkg; // Renamed the import alias
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -10,8 +11,8 @@ class EncryptionService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   
   // Key for AES encryption
-  encrypt.Key? _key;
-  encrypt.IV? _iv;
+  encrypt_pkg.Key? _key;
+  encrypt_pkg.IV? _iv;
   
   factory EncryptionService() {
     return _instance;
@@ -32,16 +33,16 @@ class EncryptionService {
     
     if (storedKey != null && storedIv != null) {
       // If keys exist, use them
-      _key = encrypt.Key.fromBase64(storedKey);
-      _iv = encrypt.IV.fromBase64(storedIv);
+      _key = encrypt_pkg.Key.fromBase64(storedKey);
+      _iv = encrypt_pkg.IV.fromBase64(storedIv);
     } else {
       // Generate a key based on user ID and a device-specific salt
       final keyString = uid + DateTime.now().millisecondsSinceEpoch.toString();
       final keyBytes = sha256.convert(utf8.encode(keyString)).bytes;
       
       // Create the encryption key and IV
-      _key = encrypt.Key(Uint8List.fromList(keyBytes));
-      _iv = encrypt.IV.fromLength(16); // AES uses 16 bytes for IV
+      _key = encrypt_pkg.Key(Uint8List.fromList(keyBytes));
+      _iv = encrypt_pkg.IV.fromLength(16); // AES uses 16 bytes for IV
       
       // Store the keys securely
       await _secureStorage.write(key: 'encryption_key_$uid', value: _key!.base64);
@@ -50,10 +51,10 @@ class EncryptionService {
   }
   
   // Encrypt a string
-  Future<String> encrypt(String plainText) async {
+  Future<String> encryptText(String plainText) async { // Renamed to avoid conflict
     await _initializeKeys();
     
-    final encrypter = encrypt.Encrypter(encrypt.AES(_key!));
+    final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(_key!));
     final encrypted = encrypter.encrypt(plainText, iv: _iv!);
     
     return encrypted.base64;
@@ -64,9 +65,9 @@ class EncryptionService {
     await _initializeKeys();
     
     try {
-      final encrypter = encrypt.Encrypter(encrypt.AES(_key!));
+      final encrypter = encrypt_pkg.Encrypter(encrypt_pkg.AES(_key!));
       final decrypted = encrypter.decrypt(
-        encrypt.Encrypted.fromBase64(encryptedText),
+        encrypt_pkg.Encrypted.fromBase64(encryptedText),
         iv: _iv!,
       );
       

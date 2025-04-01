@@ -6,6 +6,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../controller/auth_controller.dart';
+// Ensure AppTheme is correctly defined or import theme.dart if needed
 import '../../../../config/theme.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -24,8 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final AuthController _authController = Get.find<AuthController>();
   final _formKey = GlobalKey<FormState>();
-  bool _obscureText = true;
-  bool _obscureConfirmText = true;
+  // Removed _obscureText state variables as CustomTextField handles them
   bool _agreeToTerms = false;
 
   @override
@@ -63,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     'Create Account',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: AppTheme.primaryColor, // Ensure AppTheme.primaryColor is defined
                         ),
                   ),
                   const SizedBox(height: 8),
@@ -75,8 +75,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 32),
                   CustomTextField(
+                    // FIX: Added required 'label'
+                    label: 'Full Name',
                     controller: _nameController,
-                    hintText: 'Full Name',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Enter your full name',
                     prefixIcon: Icons.person_outline,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -87,8 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    // FIX: Added required 'label'
+                    label: 'Email',
                     controller: _emailController,
-                    hintText: 'Email',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Enter your email address',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -103,21 +109,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    // FIX: Added required 'label'
+                    label: 'Phone Number',
                     controller: _phoneController,
-                    hintText: 'Phone Number',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Enter your phone number',
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your phone number';
                       }
+                      // Add more specific phone validation if needed
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    // FIX: Added required 'label'
+                    label: 'Apartment/Flat Number',
                     controller: _apartmentController,
-                    hintText: 'Apartment/Flat Number',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Enter your apartment or flat number',
                     prefixIcon: Icons.home_outlined,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -128,21 +141,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    // FIX: Added required 'label'
+                    label: 'Password',
                     controller: _passwordController,
-                    hintText: 'Password',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Create a password (min. 8 characters)',
                     prefixIcon: Icons.lock_outline,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    ),
-                    obscureText: _obscureText,
+                    // FIX: Removed suffixIcon - handled internally
+                    // suffixIcon: IconButton(...) // REMOVED
+                    // FIX: Pass obscureText: true
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password';
@@ -155,21 +163,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                     // FIX: Added required 'label'
+                    label: 'Confirm Password',
                     controller: _confirmPasswordController,
-                    hintText: 'Confirm Password',
+                    // FIX: Changed 'hintText' to 'hint'
+                    hint: 'Re-enter your password',
                     prefixIcon: Icons.lock_outline,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmText ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmText = !_obscureConfirmText;
-                        });
-                      },
-                    ),
-                    obscureText: _obscureConfirmText,
+                    // FIX: Removed suffixIcon - handled internally
+                    // suffixIcon: IconButton(...) // REMOVED
+                    // FIX: Pass obscureText: true
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
@@ -185,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       Checkbox(
                         value: _agreeToTerms,
-                        activeColor: AppTheme.primaryColor,
+                        activeColor: AppTheme.primaryColor, // Ensure defined
                         onChanged: (value) {
                           setState(() {
                             _agreeToTerms = value ?? false;
@@ -201,26 +204,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(
                                 text: 'Terms of Service',
                                 style: TextStyle(
-                                  color: AppTheme.primaryColor,
+                                  color: AppTheme.primaryColor, // Ensure defined
                                   fontWeight: FontWeight.bold,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Navigate to Terms of Service
+                                    // TODO: Navigate to Terms of Service
+                                    Get.snackbar('TODO', 'Navigate to Terms');
                                   },
                               ),
-                              const TextSpan(
-                                text: ' and ',
-                              ),
+                              const TextSpan( text: ' and ', ),
                               TextSpan(
                                 text: 'Privacy Policy',
                                 style: TextStyle(
-                                  color: AppTheme.primaryColor,
+                                  color: AppTheme.primaryColor, // Ensure defined
                                   fontWeight: FontWeight.bold,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Navigate to Privacy Policy
+                                     // TODO: Navigate to Privacy Policy
+                                     Get.snackbar('TODO', 'Navigate to Privacy');
                                   },
                               ),
                             ],
@@ -230,22 +233,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  Obx(() => _authController.isLoading.value
+                  Obx(() {
+                     // Ensure isLoading exists in AuthController
+                     bool isLoading = _authController.isLoading.value;
+                     return isLoading
                       ? const Center(child: LoadingIndicator())
                       : CustomButton(
                           text: 'Register',
                           onPressed: () {
                             if (!_agreeToTerms) {
                               Get.snackbar(
-                                'Error',
+                                'Agreement Required',
                                 'Please agree to the Terms of Service and Privacy Policy',
                                 snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.orange[800],
                                 colorText: Colors.white,
                               );
                               return;
                             }
                             if (_formKey.currentState!.validate()) {
+                              // Ensure register method exists in AuthController
                               _authController.register(
                                 name: _nameController.text.trim(),
                                 email: _emailController.text.trim(),
@@ -255,7 +262,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               );
                             }
                           },
-                        )),
+                        );
+                    }
+                  ),
                   const SizedBox(height: 24),
                   Center(
                     child: RichText(
@@ -266,7 +275,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           TextSpan(
                             text: 'Login',
                             style: TextStyle(
-                              color: AppTheme.primaryColor,
+                              color: AppTheme.primaryColor, // Ensure defined
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()

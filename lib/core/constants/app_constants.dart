@@ -1,8 +1,19 @@
+import 'package:flutter/material.dart';
+
 class AppConstants {
   // App info
   static const String appName = 'Comet';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Community sharing platform for gated communities';
+  
+  // App colors
+  static const Color primaryColor = Color(0xFF3F51B5); // Indigo
+  static const Color secondaryColor = Color(0xFF03A9F4); // Light Blue
+  static const Color accentColor = Color(0xFFFF5722); // Deep Orange
+  static const Color errorColor = Color(0xFFE53935); // Red
+  static const Color backgroundColor = Color(0xFFF5F5F5); // Light Grey
+  static const Color textPrimaryColor = Color(0xFF212121); // Dark Grey
+  static const Color textSecondaryColor = Color(0xFF757575); // Medium Grey
   
   // Collection names
   static const String usersCollection = 'users';
